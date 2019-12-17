@@ -56,7 +56,6 @@ namespace Len.Transfer.AccountBoundedContext
     {
         public AccountState()
         {
-            Id = Guid.Parse("359ca1d5-e315-4b92-b0e9-e1832749aa88");
             Register<AccountCreated>(evt => When(evt));
             Register<TransferOutAmountCompleted>(evt => When(evt));
             Register<TransferInAmountCompleted>(evt => When(evt));
