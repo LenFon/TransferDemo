@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Len.Transfer.AccountBoundedContext.CommandHandlers
 {
-    public class TransferOutAmountCommandHandler : IHandler<ITransferOutAmount>, IConsumer<ITransferOutAmount>
+    public class TransferOutAmountCommandHandler : IHandler<ITransferOutAmount>, IConsumer<ITransferOutAmount>, IConsumer<Fault<ITransferOutAmount>>
     {
         private readonly IRepository _repository;
 
@@ -19,6 +19,12 @@ namespace Len.Transfer.AccountBoundedContext.CommandHandlers
         public async Task Consume(ConsumeContext<ITransferOutAmount> context)
         {
             await HandleAsync(context.Message);
+        }
+
+        public async Task Consume(ConsumeContext<Fault<ITransferOutAmount>> context)
+        {
+            await System.Console.Out.WriteLineAsync(context.Message.Exceptions[0].Message);
+            //throw new System.NotImplementedException();
         }
 
         public async Task HandleAsync(ITransferOutAmount command)

@@ -6,8 +6,8 @@ namespace Len.Domain.Persistence.Memento
 {
     public interface IMemento
     {
-        Guid Id { get; set; }
+        Guid Id { get; }
 
-        int Version { get; set; }
+        int Version { get; }
     }
 }

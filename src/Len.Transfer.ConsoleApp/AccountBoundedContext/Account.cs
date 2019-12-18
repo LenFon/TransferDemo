@@ -1,10 +1,11 @@
 ﻿using Len.Domain;
+using Len.Domain.Persistence.Memento;
 using Len.Transfer.AccountBoundedContext.Events;
 using System;
 
 namespace Len.Transfer.AccountBoundedContext
 {
-    public class Account : Aggregate<AccountState>
+    public class Account : Aggregate<AccountState>, Domain.Persistence.Memento.IOriginator
     {
         public Account()
         {
@@ -50,6 +51,17 @@ namespace Len.Transfer.AccountBoundedContext
 
             return Newtonsoft.Json.JsonConvert.SerializeObject(State);
         }
+
+        IMemento IOriginator.CreateMemento() => new AccountMemento(State.Id, State.Version, State.Amount);
+
+        void IOriginator.RestoreMemento(IMemento memento)
+        {
+            if (memento is AccountMemento accountMemento)
+            {
+                State.RestoreMemento(accountMemento);
+                LastEventVersion = State.Version;
+            }
+        }
     }
 
     public class AccountState : AggregateState
@@ -61,7 +73,24 @@ namespace Len.Transfer.AccountBoundedContext
             Register<TransferInAmountCompleted>(evt => When(evt));
         }
 
+        public AccountState(AccountMemento memento) : this()
+        {
+            RestoreMemento(memento);
+        }
+
         public decimal Amount { get; private set; }
+
+        public void RestoreMemento(AccountMemento memento)
+        {
+            if (memento == null)
+            {
+                throw new ArgumentNullException(nameof(memento));
+            }
+
+            Id = memento.Id;
+            Version = memento.Version;
+            Amount = memento.Amount;
+        }
 
         private void When(AccountCreated evt)
         {
@@ -78,5 +107,20 @@ namespace Len.Transfer.AccountBoundedContext
         {
             Amount += evt.Amount;
         }
+    }
+
+    public class AccountMemento : IMemento
+    {
+        public AccountMemento(Guid id, int version, decimal amount)
+        {
+            Id = id;
+            Version = version;
+            Amount = amount;
+        }
+
+        public Guid Id { get; private set; }
+
+        public decimal Amount { get; private set; }
+        public int Version { get; private set; }
     }
 }

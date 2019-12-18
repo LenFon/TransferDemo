@@ -50,8 +50,8 @@ namespace Len.Transfer
                 .Build());
             services.AddSingleton<IAggregateFactory, AggregateFactory>();
             services.AddSingleton<IConflictDetector, ConflictDetector>();
-            services.AddSingleton<IRepository, Repository>();
-            services.AddSingleton<ISagaRepository<AccountTransferStateInstance>, InMemorySagaRepository<AccountTransferStateInstance>>();
+            services.AddTransient<IRepository, Repository>();
+            services.AddTransient<ISagaRepository<AccountTransferStateInstance>, InMemorySagaRepository<AccountTransferStateInstance>>();
             services.AddSingleton<ISendCommandsAndWaitForAResponse, CommandSender>();
 
             services.AddSingleton<PollingClient2>(p =>
@@ -127,8 +127,8 @@ namespace Len.Transfer
             });
 
             var repository = scope.ServiceProvider.GetService<IRepository>();
-            var account1 = await repository.GetByIdAsync<Account>(id1, int.MaxValue);
-            var account2 = await repository.GetByIdAsync<Account>(id2, int.MaxValue);
+            var account1 = await repository.GetByIdAsync<Account>(id1);
+            var account2 = await repository.GetByIdAsync<Account>(id2);
 
             Console.WriteLine("account1:" + account1.ToString());
             Console.WriteLine("account2:" + account2.ToString());
@@ -144,8 +144,8 @@ namespace Len.Transfer
 
             Console.WriteLine("Hello World!");
             await Task.Delay(2 * 1000);
-            account1 = await repository.GetByIdAsync<Account>(id1, int.MaxValue);
-            account2 = await repository.GetByIdAsync<Account>(id2, int.MaxValue);
+            account1 = await repository.GetByIdAsync<Account>(id1);
+            account2 = await repository.GetByIdAsync<Account>(id2);
 
             Console.WriteLine("account1:" + account1.ToString());
             Console.WriteLine("account2:" + account2.ToString());

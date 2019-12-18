@@ -8,7 +8,7 @@ namespace Len.Domain.Repositories
         Task SaveAsync<TAggregate>(TAggregate aggregate)
             where TAggregate : IAggregate, new();
 
-        Task<TAggregate> GetByIdAsync<TAggregate>(Guid id, int revisionNumber)
+        Task<TAggregate> GetByIdAsync<TAggregate>(Guid id, int revisionNumber = int.MaxValue)
             where TAggregate : class, IAggregate, new();
     }
 }

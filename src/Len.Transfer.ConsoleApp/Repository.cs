@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Transactions;
 
 namespace Len.Transfer
 {
@@ -19,9 +20,6 @@ namespace Len.Transfer
         private readonly IAggregateFactory _factory;
         private readonly IConflictDetector _conflictDetector;
 
-        private readonly IDictionary<string, ISnapshot> _snapshots = new Dictionary<string, ISnapshot>();
-        private readonly IDictionary<string, IEventStream> _streams = new Dictionary<string, IEventStream>();
-
         public Repository(IStoreEvents storeEvents, IAggregateFactory factory, IConflictDetector conflictDetector)
         {
             _storeEvents = storeEvents;
@@ -29,7 +27,7 @@ namespace Len.Transfer
             _conflictDetector = conflictDetector;
         }
 
-        public Task<TAggregate> GetByIdAsync<TAggregate>(Guid id, int revisionNumber) where TAggregate : class, IAggregate, new()
+        public Task<TAggregate> GetByIdAsync<TAggregate>(Guid id, int revisionNumber = int.MaxValue) where TAggregate : class, IAggregate, new()
         {
             var snapshot = GetSnapshot(Bucket.Default, id, revisionNumber);
             var stream = OpenStream(Bucket.Default, id, revisionNumber, snapshot);
@@ -58,8 +56,23 @@ namespace Len.Transfer
 
                 try
                 {
+                    using var scope = new TransactionScope();
+
                     stream.CommitChanges(commitId);
                     aggregate.MarkChangesAsCommitted();
+
+                    if (aggregate is IOriginator originator)
+                    {
+                        var version = stream.CommittedEvents.Count;
+                        if (version % 2 == 0)
+                        {
+                            var snapshot = new Snapshot(bucketId, stream.StreamId, version, originator.CreateMemento());
+
+                            _storeEvents.Advanced.AddSnapshot(snapshot);
+                        }
+                    }
+
+                    scope.Complete();
                     return;
                 }
                 catch (DuplicateCommitException ex)
@@ -87,11 +100,7 @@ namespace Len.Transfer
 
         private IEventStream PrepareStream(string bucketId, IAggregate aggregate, Dictionary<string, object> headers)
         {
-            var streamId = bucketId + "+" + aggregate.Id;
-            if (!_streams.TryGetValue(streamId, out IEventStream stream))
-            {
-                _streams[streamId] = stream = _storeEvents.CreateStream(bucketId, aggregate.Id);
-            }
+            var stream = _storeEvents.CreateStream(bucketId, aggregate.Id);
 
             foreach (var item in headers)
             {
@@ -106,8 +115,7 @@ namespace Len.Transfer
             return stream;
         }
 
-        private static Dictionary<string, object> PrepareHeaders(
-            IAggregate aggregate, Action<IDictionary<string, object>> updateHeaders)
+        private static Dictionary<string, object> PrepareHeaders(IAggregate aggregate, Action<IDictionary<string, object>> updateHeaders)
         {
             var headers = new Dictionary<string, object>
             {
@@ -125,6 +133,7 @@ namespace Len.Transfer
 
             return _conflictDetector.ConflictsWith(uncommitted, committed);
         }
+
         private void ApplyEventsToAggregate(int versionToLoad, IEventStream stream, IAggregate aggregate)
         {
             if (versionToLoad == 0 || aggregate.LastEventVersion < versionToLoad)
@@ -146,28 +155,16 @@ namespace Len.Transfer
 
         private ISnapshot GetSnapshot(string bucketId, Guid aggregateId, int version)
         {
-            var snapshotId = bucketId + aggregateId;
-            if (!_snapshots.TryGetValue(snapshotId, out ISnapshot snapshot))
-            {
-                _snapshots[snapshotId] = snapshot = _storeEvents.Advanced.GetSnapshot(bucketId, aggregateId, version);
-            }
-
-            return snapshot;
+            return _storeEvents.Advanced.GetSnapshot(bucketId, aggregateId, version); ;
         }
 
         private IEventStream OpenStream(string bucketId, Guid aggregateId, int version, ISnapshot snapshot)
         {
-            var streamId = bucketId + "+" + aggregateId;
-            if (_streams.TryGetValue(streamId, out IEventStream stream))
-            {
-                return stream;
-            }
+            var stream = snapshot == null
+                 ? _storeEvents.OpenStream(bucketId, aggregateId, 0, version)
+                 : _storeEvents.OpenStream(snapshot, version);
 
-            stream = snapshot == null
-                ? _storeEvents.OpenStream(bucketId, aggregateId, 0, version)
-                : _storeEvents.OpenStream(snapshot, version);
-
-            return _streams[streamId] = stream;
+            return stream;
         }
     }
 }
