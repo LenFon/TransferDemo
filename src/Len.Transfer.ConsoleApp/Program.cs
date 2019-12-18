@@ -81,9 +81,6 @@ namespace Len.Transfer
                 x.AddConsumer<TransferOutAmountCommandHandler>();
                 x.AddConsumer<TransferInAmountCommandHandler>();
 
-                x.AddRequestClient<ICreateAccountCommand>();
-                x.AddRequestClient<IAccountTransferCommand>();
-
                 x.AddSagaStateMachine<AccountTransferStateMachine, AccountTransferStateInstance>();
 
                 x.AddBus(provider => Bus.Factory.CreateUsingInMemory(cfg =>
@@ -133,14 +130,14 @@ namespace Len.Transfer
             Console.WriteLine("account1:" + account1.ToString());
             Console.WriteLine("account2:" + account2.ToString());
 
-            ////发起转账
-            //var response3 = await sender.SendAsync<IAccountTransferCommand>(new
-            //{
-            //    Id = Guid.NewGuid(),
-            //    FromAccountId = id2,
-            //    ToAccountId = id1,
-            //    Amount = 50,
-            //});
+            //发起转账
+            var response3 = await sender.SendAsync<IAccountTransferCommand>(new
+            {
+                Id = Guid.NewGuid(),
+                FromAccountId = id1,
+                ToAccountId = id2,
+                Amount = 50,
+            });
 
             Console.WriteLine("Hello World!");
             await Task.Delay(2 * 1000);
