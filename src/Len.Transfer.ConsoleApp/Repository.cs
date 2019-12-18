@@ -100,7 +100,7 @@ namespace Len.Transfer
 
         private IEventStream PrepareStream(string bucketId, IAggregate aggregate, Dictionary<string, object> headers)
         {
-            var stream = _storeEvents.CreateStream(bucketId, aggregate.Id);
+            var stream = OpenStream(bucketId, aggregate.Id);
 
             foreach (var item in headers)
             {
@@ -158,7 +158,7 @@ namespace Len.Transfer
             return _storeEvents.Advanced.GetSnapshot(bucketId, aggregateId, version); ;
         }
 
-        private IEventStream OpenStream(string bucketId, Guid aggregateId, int version, ISnapshot snapshot)
+        private IEventStream OpenStream(string bucketId, Guid aggregateId, int version = int.MaxValue, ISnapshot snapshot = null)
         {
             var stream = snapshot == null
                  ? _storeEvents.OpenStream(bucketId, aggregateId, 0, version)

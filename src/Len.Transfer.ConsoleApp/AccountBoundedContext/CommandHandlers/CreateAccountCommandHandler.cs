@@ -45,9 +45,14 @@ namespace Len.Transfer.AccountBoundedContext.CommandHandlers
 
         public async Task HandleAsync(ICreateAccountCommand command)
         {
-            var account =new Account(command.AccountId,command.InitialAmount);
+            var account = await _repository.GetByIdAsync<Account>(command.AccountId);
 
-            await _repository.SaveAsync(account);
+            if (account.Id == Guid.Empty)
+            {
+                account = new Account(command.AccountId, command.InitialAmount);
+
+                await _repository.SaveAsync(account);
+            }
         }
     }
 }

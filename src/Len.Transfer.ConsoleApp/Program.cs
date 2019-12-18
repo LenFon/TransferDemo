@@ -39,9 +39,9 @@ namespace Len.Transfer
             services.AddSingleton<IStoreEvents>(Wireup
                 .Init()
                 .UseOptimisticPipelineHook()
-                .UsingInMemoryPersistence()
-                //.UsingSqlPersistence(System.Data.SqlClient.SqlClientFactory.Instance, connStr)
-                //.WithDialect(new MsSqlDialect())
+                //.UsingInMemoryPersistence()
+                .UsingSqlPersistence(System.Data.SqlClient.SqlClientFactory.Instance, connStr)
+                .WithDialect(new MsSqlDialect())
                 .InitializeStorageEngine()
                 .UsingJsonSerialization()
                 .Compress()
@@ -133,14 +133,14 @@ namespace Len.Transfer
             Console.WriteLine("account1:" + account1.ToString());
             Console.WriteLine("account2:" + account2.ToString());
 
-            //发起转账
-            var response3 = await sender.SendAsync<IAccountTransferCommand>(new
-            {
-                Id = Guid.NewGuid(),
-                FromAccountId = id1,
-                ToAccountId = id2,
-                Amount = 50,
-            });
+            ////发起转账
+            //var response3 = await sender.SendAsync<IAccountTransferCommand>(new
+            //{
+            //    Id = Guid.NewGuid(),
+            //    FromAccountId = id2,
+            //    ToAccountId = id1,
+            //    Amount = 50,
+            //});
 
             Console.WriteLine("Hello World!");
             await Task.Delay(2 * 1000);
