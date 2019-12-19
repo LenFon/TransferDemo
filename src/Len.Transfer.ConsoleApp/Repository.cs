@@ -59,7 +59,6 @@ namespace Len.Transfer
                     using var scope = new TransactionScope();
 
                     stream.CommitChanges(commitId);
-                    aggregate.MarkChangesAsCommitted();
 
                     if (aggregate is IOriginator originator)
                     {
@@ -73,6 +72,8 @@ namespace Len.Transfer
                     }
 
                     scope.Complete();
+
+                    aggregate.MarkChangesAsCommitted();
                     return;
                 }
                 catch (DuplicateCommitException ex)

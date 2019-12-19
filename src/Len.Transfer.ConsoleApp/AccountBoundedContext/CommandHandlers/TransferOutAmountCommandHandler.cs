@@ -2,17 +2,19 @@
 using Len.Domain.Repositories;
 using Len.Transfer.AccountBoundedContext.Commands;
 using MassTransit;
+using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
 namespace Len.Transfer.AccountBoundedContext.CommandHandlers
 {
     public class TransferOutAmountCommandHandler : IHandler<ITransferOutAmount>, IConsumer<ITransferOutAmount>, IConsumer<Fault<ITransferOutAmount>>
     {
+        private readonly ILogger<TransferOutAmountCommandHandler> _log;
         private readonly IRepository _repository;
 
-        public TransferOutAmountCommandHandler(IRepository repository)
+        public TransferOutAmountCommandHandler(ILogger<TransferOutAmountCommandHandler> log, IRepository repository)
         {
-
+            _log = log;
             _repository = repository;
         }
 
@@ -23,6 +25,7 @@ namespace Len.Transfer.AccountBoundedContext.CommandHandlers
 
         public async Task Consume(ConsumeContext<Fault<ITransferOutAmount>> context)
         {
+            //_log.LogInformation("TransferOutAmountCommandHandler info", context);
             await System.Console.Out.WriteLineAsync(context.Message.Exceptions[0].Message);
             //throw new System.NotImplementedException();
         }

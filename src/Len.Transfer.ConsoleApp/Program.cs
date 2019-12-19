@@ -1,6 +1,4 @@
-﻿using GreenPipes.Internals.Extensions;
-using GreenPipes.Internals.Mapping;
-using Len.Commands;
+﻿using Len.Commands;
 using Len.Domain;
 using Len.Domain.Persistence;
 using Len.Domain.Repositories;
@@ -9,20 +7,17 @@ using Len.Transfer.AccountBoundedContext.CommandHandlers;
 using Len.Transfer.AccountBoundedContext.Commands;
 using Len.Transfer.Saga;
 using MassTransit;
+using MassTransit.Context;
 using MassTransit.Saga;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using NEventStore;
-using NEventStore.Logging;
 using NEventStore.Persistence.Sql.SqlDialects;
 using NEventStore.PollingClient;
-using NEventStore.Serialization;
 using NEventStore.Serialization.Json;
-using Newtonsoft.Json;
+using Serilog;
+using Serilog.Events;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Len.Transfer
@@ -33,7 +28,16 @@ namespace Len.Transfer
 
         static async Task Main(string[] args)
         {
+            Log.Logger = new LoggerConfiguration()
+                 .MinimumLevel.Debug()//最小的输出单位是Debug级别的
+                 .MinimumLevel.Override("Microsoft", LogEventLevel.Information)//将Microsoft前缀的日志的最小输出级别改成Information
+                 .Enrich.FromLogContext()
+                 .WriteTo.Console()
+                 .CreateLogger();
+
             var services = new ServiceCollection();
+
+            services.AddLogging(builder => builder.AddSerilog(dispose: true));
 
             var connStr = @"Server=(LocalDb)\MSSQLLocalDB;Database=Transfer-EventDb;User ID=sa;Password=1;";
             services.AddSingleton<IStoreEvents>(Wireup
@@ -74,6 +78,7 @@ namespace Len.Transfer
                 },
                 waitInterval: 3000);
             });
+
             services.AddMassTransit(x =>
             {
                 x.AddConsumer<CreateAccountCommandHandler>();
@@ -95,6 +100,7 @@ namespace Len.Transfer
                 }));
             });
 
+           
             using var scope = services.BuildServiceProvider().CreateScope();
             var bus = scope.ServiceProvider.GetService<IBusControl>();
             await bus.StartAsync();
