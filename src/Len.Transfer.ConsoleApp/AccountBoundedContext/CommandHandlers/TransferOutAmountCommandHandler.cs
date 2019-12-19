@@ -2,6 +2,7 @@
 using Len.Domain.Repositories;
 using Len.Transfer.AccountBoundedContext.Commands;
 using MassTransit;
+using MassTransit.Definition;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
@@ -37,6 +38,14 @@ namespace Len.Transfer.AccountBoundedContext.CommandHandlers
             account.TransferOut(command.Amount, command.ToAccountId, command.CorrelationId);
 
             await _repository.SaveAsync(account);
+        }
+    }
+
+    public class TransferOutAmountCommandHandlerDefinition : ConsumerDefinition<TransferOutAmountCommandHandler>
+    {
+        public TransferOutAmountCommandHandlerDefinition()
+        {
+            EndpointName = "transfer-out-ammount-handler";
         }
     }
 }

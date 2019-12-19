@@ -4,6 +4,7 @@ using GreenPipes;
 using Len.Transfer.AccountBoundedContext.Commands;
 using Len.Transfer.AccountBoundedContext.Events;
 using MassTransit;
+using MassTransit.Definition;
 using System;
 using System.Threading.Tasks;
 
@@ -135,6 +136,23 @@ namespace Len.Transfer.Saga
             instance.FromAccountId = data.FromAccountId;
             instance.ToAccountId = data.ToAccountId;
             instance.Amount = data.Amount;
+        }
+    }
+
+    public class AccountTransferStateMachineDefinition : SagaDefinition<AccountTransferStateInstance>
+    {
+        public AccountTransferStateMachineDefinition()
+        {
+            EndpointName = "account-transfer-state";
+        }
+
+        protected override void ConfigureSaga(IReceiveEndpointConfigurator endpointConfigurator, ISagaConfigurator<AccountTransferStateInstance> sagaConfigurator)
+        {
+            var partition = endpointConfigurator.CreatePartitioner(Environment.ProcessorCount);
+
+            sagaConfigurator.Message<TransferStarted>(x => x.UsePartitioner(partition, m => m.Message.Id));
+            sagaConfigurator.Message<TransferOutAmountCompleted>(x => x.UsePartitioner(partition, m => m.Message.CorrelationId));
+            sagaConfigurator.Message<TransferInAmountCompleted>(x => x.UsePartitioner(partition, m => m.Message.CorrelationId));
         }
     }
 

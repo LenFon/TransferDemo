@@ -3,6 +3,7 @@ using Len.Domain.Repositories;
 using Len.Transfer.AccountBoundedContext.Commands;
 using Len.Transfer.AccountBoundedContext.Events;
 using MassTransit;
+using MassTransit.Definition;
 using System;
 using System.Threading.Tasks;
 
@@ -43,6 +44,14 @@ namespace Len.Transfer.AccountBoundedContext.CommandHandlers
 
 
             await context.RespondAsync(response);
+        }
+    }
+
+    public class AccountTransferCommandHandlerDefinition : ConsumerDefinition<AccountTransferCommandHandler>
+    {
+        public AccountTransferCommandHandlerDefinition()
+        {
+            EndpointName = "start-account-transfer-handler";
         }
     }
 }

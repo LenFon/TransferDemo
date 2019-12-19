@@ -2,6 +2,7 @@
 using Len.Domain.Repositories;
 using Len.Transfer.AccountBoundedContext.Commands;
 using MassTransit;
+using MassTransit.Definition;
 using System.Threading.Tasks;
 
 namespace Len.Transfer.AccountBoundedContext.CommandHandlers
@@ -28,6 +29,14 @@ namespace Len.Transfer.AccountBoundedContext.CommandHandlers
             account.TransferIn(command.Amount, command.FromAccountId, command.CorrelationId);
 
             await _repository.SaveAsync(account);
+        }
+    }
+
+    public class TransferInAmountCommandHandlerDefinition : ConsumerDefinition<TransferInAmountCommandHandler>
+    {
+        public TransferInAmountCommandHandlerDefinition()
+        {
+            EndpointName = "transfer-in-ammount-handler";
         }
     }
 }

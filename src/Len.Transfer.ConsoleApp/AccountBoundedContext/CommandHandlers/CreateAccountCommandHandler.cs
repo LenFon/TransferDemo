@@ -2,6 +2,7 @@
 using Len.Domain.Repositories;
 using Len.Transfer.AccountBoundedContext.Commands;
 using MassTransit;
+using MassTransit.Definition;
 using System;
 using System.Threading.Tasks;
 
@@ -53,6 +54,14 @@ namespace Len.Transfer.AccountBoundedContext.CommandHandlers
 
                 await _repository.SaveAsync(account);
             }
+        }
+    }
+
+    public class CreateAccountCommandHandlerDefinition : ConsumerDefinition<CreateAccountCommandHandler>
+    {
+        public CreateAccountCommandHandlerDefinition()
+        {
+            EndpointName = "create-account-handler";
         }
     }
 }

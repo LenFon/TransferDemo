@@ -81,12 +81,12 @@ namespace Len.Transfer
 
             services.AddMassTransit(x =>
             {
-                x.AddConsumer<CreateAccountCommandHandler>();
-                x.AddConsumer<AccountTransferCommandHandler>();
-                x.AddConsumer<TransferOutAmountCommandHandler>();
-                x.AddConsumer<TransferInAmountCommandHandler>();
+                x.AddConsumersFromNamespaceContaining<CreateAccountCommandHandler>();
+                //x.AddConsumer<AccountTransferCommandHandler>();
+                //x.AddConsumer<TransferOutAmountCommandHandler>();
+                //x.AddConsumer<TransferInAmountCommandHandler>();
 
-                x.AddSagaStateMachine<AccountTransferStateMachine, AccountTransferStateInstance>();
+                x.AddSagaStateMachinesFromNamespaceContaining(typeof(AccountTransferStateMachine));
 
                 x.AddBus(provider => Bus.Factory.CreateUsingInMemory(cfg =>
                 {
@@ -133,8 +133,10 @@ namespace Len.Transfer
             var account1 = await repository.GetByIdAsync<Account>(id1);
             var account2 = await repository.GetByIdAsync<Account>(id2);
 
+            Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine("account1:" + account1.ToString());
             Console.WriteLine("account2:" + account2.ToString());
+            Console.ResetColor();
 
             //发起转账
             var response3 = await sender.SendAsync<IAccountTransferCommand>(new
@@ -146,12 +148,14 @@ namespace Len.Transfer
             });
 
             Console.WriteLine("Hello World!");
-            await Task.Delay(2 * 1000);
+            await Task.Delay(10 * 1000);
             account1 = await repository.GetByIdAsync<Account>(id1);
             account2 = await repository.GetByIdAsync<Account>(id2);
 
+            Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine("account1:" + account1.ToString());
             Console.WriteLine("account2:" + account2.ToString());
+            Console.ResetColor();
 
             Console.Read();
         }
