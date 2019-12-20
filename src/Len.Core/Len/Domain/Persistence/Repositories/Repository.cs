@@ -29,11 +29,26 @@ namespace Len.Domain.Persistence.Repositories
              where TAggregate : IAggregate, new()
         {
             var aggregate = _factory.Build<TAggregate>();
+
+            await ApplyEventsAsync(id, version, aggregate);
+
+            return aggregate;
+        }
+
+        public async Task<IAggregate> GetByIdAsync(Type aggregateType, Guid id, int version = int.MaxValue)
+        {
+            var aggregate = _factory.Build(aggregateType);
+            
+            await ApplyEventsAsync(id, version, aggregate);
+
+            return aggregate;
+        }
+
+        private async Task ApplyEventsAsync(Guid id, int version, IAggregate aggregate)
+        {
             var events = await _eventStore.GetEventsAsync(id, aggregate.LastEventVersion + 1, version);
 
             aggregate.Initialize(events);
-
-            return aggregate;
         }
     }
 

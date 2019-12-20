@@ -21,7 +21,7 @@ namespace Len.Transfer.AccountBoundedContext.CommandHandlers
 
         public async Task HandleAsync(ICreateSnapshot command)
         {
-            var account = await _repository.GetByIdAsync<Account>(command.AggregateId, command.Version);
+            var account = await _repository.GetByIdAsync(typeof(Account), command.AggregateId, command.Version);
 
             var memento = (account as IOriginator)?.CreateMemento();
 

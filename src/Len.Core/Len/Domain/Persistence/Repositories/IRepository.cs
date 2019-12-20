@@ -10,6 +10,8 @@ namespace Len.Domain.Persistence.Repositories
 
         Task<TAggregate> GetByIdAsync<TAggregate>(Guid id, int version = int.MaxValue)
             where TAggregate : IAggregate, new();
+
+        Task<IAggregate> GetByIdAsync(Type aggregateType, Guid id, int version = int.MaxValue);
     }
 
     public interface IRepository<TAggregate> where TAggregate : IAggregate, new()
