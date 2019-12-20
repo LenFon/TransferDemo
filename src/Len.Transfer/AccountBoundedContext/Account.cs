@@ -5,7 +5,7 @@ using System;
 
 namespace Len.Transfer.AccountBoundedContext
 {
-    public class Account : Aggregate<AccountState>, Domain.Persistence.Memento.IOriginator
+    public class Account : Aggregate<AccountState>,IOriginator
     {
         public Account()
         {
