@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace Len.Transfer.AccountBoundedContext.CommandHandlers
 {
+    [CommandHandler]
     public class TransferOutAmountCommandHandler : ICommandHandler<ITransferOutAmount>
     {
         private readonly ILogger<TransferOutAmountCommandHandler> _log;

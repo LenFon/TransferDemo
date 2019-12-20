@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace Len.Transfer.AccountBoundedContext.CommandHandlers
 {
+    [CommandHandler]
     public class CreateAccountCommandHandler : ICommandHandler<ICreateAccountCommand>
     {
         private readonly IRepository _repository;

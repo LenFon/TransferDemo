@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 namespace Len.Transfer.AccountBoundedContext.CommandHandlers
 {
+    [CommandHandler]
     public class TransferInAmountCommandHandler : ICommandHandler<ITransferInAmount>
     {
         private readonly IRepository _repository;

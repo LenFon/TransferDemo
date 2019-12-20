@@ -59,9 +59,14 @@ namespace Len.Transfer
             services.AddTransient<ISagaRepository<AccountTransferStateInstance>, InMemorySagaRepository<AccountTransferStateInstance>>();
             services.AddSingleton<ISendCommandsAndWaitForAResponse, CommandSender>();
 
-            services.AddTransient<ICommandHandler<ICreateAccountCommand>, CreateAccountCommandHandler>();
-            services.AddTransient<ICommandHandler<ITransferInAmount>, TransferInAmountCommandHandler>();
-            services.AddTransient<ICommandHandler<ITransferOutAmount>, TransferOutAmountCommandHandler>();
+            services.Scan(scan =>
+            {
+                scan.FromAssemblyOf<CreateAccountCommandHandler>()
+                    .AddClasses(c => c.Where(w => w.Name.EndsWith("CommandHandler")))
+                    .AddClasses(c => c.WithAttribute<CommandHandlerAttribute>())
+                    .AsImplementedInterfaces()
+                    .WithTransientLifetime();
+            });
 
             services.AddSingleton<PollingClient2>(p =>
             {
