@@ -4,6 +4,6 @@ namespace Len.Domain
 {
     public interface IAggregateFactory
     {
-        IAggregate Build<TAggregate>(IMemento snapshot = null) where TAggregate : IAggregate, new();
+        TAggregate Build<TAggregate>(IMemento snapshot = null) where TAggregate : IAggregate, new();
     }
 }

@@ -5,15 +5,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Len.Events.Storage
+namespace Len.Events.Persistence
 {
     public class InMemoryEventStore : IEventStore
     {
         private readonly ConcurrentDictionary<string, List<IEvent>> _stores = new ConcurrentDictionary<string, List<IEvent>>();
 
-        public Task<IEnumerable<IEvent>> GetForAggregateAsync(Guid aggregateId, Type aggregateType, int revisionNumber = int.MaxValue)
+        public Task<IEnumerable<IEvent>> GetEventsAsync(Guid aggregateId, int minVersion = int.MinValue, int maxVersion = int.MaxValue)
         {
-            var key = $"{aggregateType.FullName}-{aggregateId.ToString()}";
+            var key = aggregateId.ToString();
 
             if (_stores.TryGetValue(key, out var events))
             {
@@ -23,9 +23,9 @@ namespace Len.Events.Storage
             return Task.FromResult(Enumerable.Empty<IEvent>());
         }
 
-        public Task SaveAsync(Guid aggregateId, Type aggregateType, IEnumerable<IEvent> events)
+        public Task SaveAsync(Guid aggregateId, IEnumerable<IEvent> events)
         {
-            var key = $"{aggregateType.FullName}-{aggregateId.ToString()}";
+            var key = aggregateId.ToString();
 
             if (!_stores.TryGetValue(key, out var localEvents))
             {

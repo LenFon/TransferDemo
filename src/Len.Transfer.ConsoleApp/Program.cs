@@ -1,18 +1,19 @@
 ﻿using Len.Commands;
 using Len.Domain;
 using Len.Domain.Persistence;
-using Len.Domain.Repositories;
+using Len.Domain.Persistence.Memento;
+using Len.Domain.Persistence.Repositories;
+using Len.Events.Persistence;
 using Len.Transfer.AccountBoundedContext;
 using Len.Transfer.AccountBoundedContext.CommandHandlers;
 using Len.Transfer.AccountBoundedContext.Commands;
 using Len.Transfer.Consomers;
 using Len.Transfer.Saga;
 using MassTransit;
-using MassTransit.Context;
 using MassTransit.Saga;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using NEventStore;
+using NEventStore.Persistence;
 using NEventStore.Persistence.Sql.SqlDialects;
 using NEventStore.PollingClient;
 using NEventStore.Serialization.Json;
@@ -29,6 +30,7 @@ namespace Len.Transfer
 
         static async Task Main(string[] args)
         {
+            var baseUri = new Uri("loopback://localhost/len/");
             Log.Logger = new LoggerConfiguration()
                  .MinimumLevel.Debug()//最小的输出单位是Debug级别的
                  .MinimumLevel.Override("Microsoft", LogEventLevel.Information)//将Microsoft前缀的日志的最小输出级别改成Information
@@ -43,6 +45,7 @@ namespace Len.Transfer
             var connStr = @"Server=(LocalDb)\MSSQLLocalDB;Database=Transfer-EventDb;User ID=sa;Password=1;";
             services.AddSingleton<IStoreEvents>(Wireup
                 .Init()
+                .LogToConsoleWindow()
                 .UseOptimisticPipelineHook()
                 //.UsingInMemoryPersistence()
                 .UsingSqlPersistence(System.Data.SqlClient.SqlClientFactory.Instance, connStr)
@@ -53,9 +56,14 @@ namespace Len.Transfer
                 .EncryptWith(EncryptionKey)
                 .UsingEventUpconversion()
                 .Build());
+            services.AddSingleton<IPersistStreams>(p => p.GetService<IStoreEvents>().Advanced);
+
             services.AddSingleton<IAggregateFactory, AggregateFactory>();
             services.AddSingleton<IConflictDetector, ConflictDetector>();
+            services.AddTransient<IEventStore, EventStore>();
+            services.AddTransient<IMementoStore, MementoStore>();
             services.AddTransient<IRepository, Repository>();
+            services.AddTransient(typeof(IRepository<>), typeof(Repository<>));
             services.AddTransient<ISagaRepository<AccountTransferStateInstance>, InMemorySagaRepository<AccountTransferStateInstance>>();
             services.AddSingleton<ISendCommandsAndWaitForAResponse, CommandSender>();
 
@@ -92,13 +100,9 @@ namespace Len.Transfer
             services.AddMassTransit(x =>
             {
                 x.AddConsumersFromNamespaceContaining<CreateAccountCommandConsumer>();
-                //x.AddConsumer<AccountTransferCommandHandler>();
-                //x.AddConsumer<TransferOutAmountCommandHandler>();
-                //x.AddConsumer<TransferInAmountCommandHandler>();
-
                 x.AddSagaStateMachinesFromNamespaceContaining(typeof(AccountTransferStateMachine));
 
-                x.AddBus(provider => Bus.Factory.CreateUsingInMemory(cfg =>
+                x.AddBus(provider => Bus.Factory.CreateUsingInMemory(baseUri, cfg =>
                 {
                     //cfg.Host(new Uri("rabbitmq://192.168.199.16:5673"), host =>
                     //{
@@ -115,9 +119,9 @@ namespace Len.Transfer
             var bus = scope.ServiceProvider.GetService<IBusControl>();
             await bus.StartAsync();
 
-            var client = scope.ServiceProvider.GetService<PollingClient2>();
+            //var client = scope.ServiceProvider.GetService<PollingClient2>();
 
-            client.StartFrom();
+            //client.StartFrom();
 
             var sender = scope.ServiceProvider.GetService<ISendCommandsAndWaitForAResponse>();
 
@@ -139,9 +143,9 @@ namespace Len.Transfer
                 InitialAmount = 100,
             });
 
-            var repository = scope.ServiceProvider.GetService<IRepository>();
-            var account1 = await repository.GetByIdAsync<Account>(id1);
-            var account2 = await repository.GetByIdAsync<Account>(id2);
+            var repository = scope.ServiceProvider.GetService<IRepository<Account>>();
+            var account1 = await repository.GetByIdAsync(id1);
+            var account2 = await repository.GetByIdAsync(id2);
 
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine("account1:" + account1.ToString());
@@ -159,8 +163,8 @@ namespace Len.Transfer
 
             Console.WriteLine("Hello World!");
             await Task.Delay(10 * 1000);
-            account1 = await repository.GetByIdAsync<Account>(id1);
-            account2 = await repository.GetByIdAsync<Account>(id2);
+            account1 = await repository.GetByIdAsync(id1);
+            account2 = await repository.GetByIdAsync(id2);
 
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine("account1:" + account1.ToString());

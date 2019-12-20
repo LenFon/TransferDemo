@@ -1,5 +1,5 @@
 ﻿using Len.Commands;
-using Len.Domain.Repositories;
+using Len.Domain.Persistence.Repositories;
 using Len.Transfer.AccountBoundedContext.Commands;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;

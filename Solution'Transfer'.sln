@@ -9,6 +9,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Len.Transfer.ConsoleApp", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Len.Transfer", "src\Len.Transfer\Len.Transfer.csproj", "{DF2C50E7-A24E-4728-876B-3E202A7C974B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Len.Transfer.EventDispatch", "src\Len.Transfer.EventDispatch\Len.Transfer.EventDispatch.csproj", "{7FEC222C-7F8B-4263-836D-FE1913106F01}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Len.NEventStore", "src\Len.NEventStore\Len.NEventStore.csproj", "{5F94E45A-4EF6-42CF-8311-4153DBF6B192}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +31,14 @@ Global
 		{DF2C50E7-A24E-4728-876B-3E202A7C974B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DF2C50E7-A24E-4728-876B-3E202A7C974B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DF2C50E7-A24E-4728-876B-3E202A7C974B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7FEC222C-7F8B-4263-836D-FE1913106F01}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7FEC222C-7F8B-4263-836D-FE1913106F01}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7FEC222C-7F8B-4263-836D-FE1913106F01}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7FEC222C-7F8B-4263-836D-FE1913106F01}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5F94E45A-4EF6-42CF-8311-4153DBF6B192}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5F94E45A-4EF6-42CF-8311-4153DBF6B192}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5F94E45A-4EF6-42CF-8311-4153DBF6B192}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5F94E45A-4EF6-42CF-8311-4153DBF6B192}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
