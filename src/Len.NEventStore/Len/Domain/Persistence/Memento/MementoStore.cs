@@ -32,5 +32,30 @@ namespace Len.Domain.Persistence.Memento
 
             return Task.FromResult(memento);
         }
+
+        public Task SaveAsync(IMemento memento)
+        {
+            while (true)
+            {
+                try
+                {
+                    _persistStreams.AddSnapshot(new Snapshot(memento.Id.ToString(), memento.Version, memento));
+
+                    return Task.CompletedTask;
+                }
+                catch (DuplicateCommitException ex)
+                {
+                    throw ex;
+                }
+                catch (ConcurrencyException e)
+                {
+                    throw new ConflictingCommandException(e.Message, e);
+                }
+                catch (StorageException e)
+                {
+                    throw new PersistenceException(e.Message, e);
+                }
+            }
+        }
     }
 }
