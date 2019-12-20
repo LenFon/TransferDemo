@@ -7,10 +7,4 @@ namespace Len.Message
     {
         Task HandleAsync(TMessage message);
     }
-
-    public interface IMessageHandler<in TMessage, TResult>
-        where TMessage : IMessage
-    {
-        Task<TResult> HandleAsync(TMessage message);
-    }
 }
