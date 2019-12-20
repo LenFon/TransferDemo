@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Len.Core", "src\Len.Core\Le
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Len.Transfer.ConsoleApp", "src\Len.Transfer.ConsoleApp\Len.Transfer.ConsoleApp.csproj", "{B774D741-F56C-4E44-98B4-36DDE68773D8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Len.Transfer", "src\Len.Transfer\Len.Transfer.csproj", "{DF2C50E7-A24E-4728-876B-3E202A7C974B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{B774D741-F56C-4E44-98B4-36DDE68773D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B774D741-F56C-4E44-98B4-36DDE68773D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B774D741-F56C-4E44-98B4-36DDE68773D8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DF2C50E7-A24E-4728-876B-3E202A7C974B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF2C50E7-A24E-4728-876B-3E202A7C974B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF2C50E7-A24E-4728-876B-3E202A7C974B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF2C50E7-A24E-4728-876B-3E202A7C974B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

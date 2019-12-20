@@ -1,20 +1,19 @@
 ﻿using Len.Commands;
-using Len.Domain.Repositories;
 using Len.Transfer.AccountBoundedContext.Commands;
 using MassTransit;
 using MassTransit.Definition;
 using System;
 using System.Threading.Tasks;
 
-namespace Len.Transfer.AccountBoundedContext.CommandHandlers
+namespace Len.Transfer.Consomers
 {
-    public class CreateAccountCommandHandler : IHandler<ICreateAccountCommand>, IConsumer<ICreateAccountCommand>
+    public class CreateAccountCommandConsumer : IConsumer<ICreateAccountCommand>
     {
-        private readonly IRepository _repository;
+        private readonly ICommandHandler<ICreateAccountCommand> _handler;
 
-        public CreateAccountCommandHandler(IRepository repository)
+        public CreateAccountCommandConsumer(ICommandHandler<ICreateAccountCommand> handler)
         {
-            _repository = repository;
+            _handler = handler;
         }
 
         public async Task Consume(ConsumeContext<ICreateAccountCommand> context)
@@ -23,9 +22,10 @@ namespace Len.Transfer.AccountBoundedContext.CommandHandlers
             {
                 CommandId = context.Message.AccountId,
             };
+
             try
             {
-                await HandleAsync(context.Message);
+                await _handler.HandleAsync(context.Message);
 
                 response.CommandStatus = CommandStatus.Succeeded;
                 response.ContainsException = false;
@@ -43,25 +43,13 @@ namespace Len.Transfer.AccountBoundedContext.CommandHandlers
 
             await context.RespondAsync(response);
         }
-
-        public async Task HandleAsync(ICreateAccountCommand command)
-        {
-            var account = await _repository.GetByIdAsync<Account>(command.AccountId);
-
-            if (account.Id == Guid.Empty)
-            {
-                account = new Account(command.AccountId, command.InitialAmount);
-
-                await _repository.SaveAsync(account);
-            }
-        }
     }
 
-    public class CreateAccountCommandHandlerDefinition : ConsumerDefinition<CreateAccountCommandHandler>
+    public class CreateAccountCommandConsumerDefinition : ConsumerDefinition<CreateAccountCommandConsumer>
     {
-        public CreateAccountCommandHandlerDefinition()
+        public CreateAccountCommandConsumerDefinition()
         {
-            EndpointName = "create-account-handler";
+            EndpointName = "create-account";
         }
     }
 }

@@ -1,13 +1,11 @@
 ﻿using Len.Commands;
 using Len.Domain.Repositories;
 using Len.Transfer.AccountBoundedContext.Commands;
-using MassTransit;
-using MassTransit.Definition;
 using System.Threading.Tasks;
 
 namespace Len.Transfer.AccountBoundedContext.CommandHandlers
 {
-    public class TransferInAmountCommandHandler : IHandler<ITransferInAmount>, IConsumer<ITransferInAmount>
+    public class TransferInAmountCommandHandler : ICommandHandler<ITransferInAmount>
     {
         private readonly IRepository _repository;
 
@@ -17,11 +15,6 @@ namespace Len.Transfer.AccountBoundedContext.CommandHandlers
             _repository = repository;
         }
 
-        public async Task Consume(ConsumeContext<ITransferInAmount> context)
-        {
-            await HandleAsync(context.Message);
-        }
-
         public async Task HandleAsync(ITransferInAmount command)
         {
             var account = await _repository.GetByIdAsync<Account>(command.AccountId, int.MaxValue);
@@ -29,14 +22,6 @@ namespace Len.Transfer.AccountBoundedContext.CommandHandlers
             account.TransferIn(command.Amount, command.FromAccountId, command.CorrelationId);
 
             await _repository.SaveAsync(account);
-        }
-    }
-
-    public class TransferInAmountCommandHandlerDefinition : ConsumerDefinition<TransferInAmountCommandHandler>
-    {
-        public TransferInAmountCommandHandlerDefinition()
-        {
-            EndpointName = "transfer-in-ammount-handler";
         }
     }
 }

@@ -21,10 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Len.Core\Len.Core.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="AccountBoundedContext\EventHandlers\" />
+    <ProjectReference Include="..\Len.Transfer\Len.Transfer.csproj" />
   </ItemGroup>
 
 </Project>

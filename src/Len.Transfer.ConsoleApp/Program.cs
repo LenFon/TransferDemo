@@ -5,6 +5,7 @@ using Len.Domain.Repositories;
 using Len.Transfer.AccountBoundedContext;
 using Len.Transfer.AccountBoundedContext.CommandHandlers;
 using Len.Transfer.AccountBoundedContext.Commands;
+using Len.Transfer.Consomers;
 using Len.Transfer.Saga;
 using MassTransit;
 using MassTransit.Context;
@@ -58,6 +59,10 @@ namespace Len.Transfer
             services.AddTransient<ISagaRepository<AccountTransferStateInstance>, InMemorySagaRepository<AccountTransferStateInstance>>();
             services.AddSingleton<ISendCommandsAndWaitForAResponse, CommandSender>();
 
+            services.AddTransient<ICommandHandler<ICreateAccountCommand>, CreateAccountCommandHandler>();
+            services.AddTransient<ICommandHandler<ITransferInAmount>, TransferInAmountCommandHandler>();
+            services.AddTransient<ICommandHandler<ITransferOutAmount>, TransferOutAmountCommandHandler>();
+
             services.AddSingleton<PollingClient2>(p =>
             {
                 var bus = p.GetService<IBus>();
@@ -81,7 +86,7 @@ namespace Len.Transfer
 
             services.AddMassTransit(x =>
             {
-                x.AddConsumersFromNamespaceContaining<CreateAccountCommandHandler>();
+                x.AddConsumersFromNamespaceContaining<CreateAccountCommandConsumer>();
                 //x.AddConsumer<AccountTransferCommandHandler>();
                 //x.AddConsumer<TransferOutAmountCommandHandler>();
                 //x.AddConsumer<TransferInAmountCommandHandler>();
@@ -100,7 +105,7 @@ namespace Len.Transfer
                 }));
             });
 
-           
+
             using var scope = services.BuildServiceProvider().CreateScope();
             var bus = scope.ServiceProvider.GetService<IBusControl>();
             await bus.StartAsync();

@@ -7,9 +7,9 @@ using MassTransit.Definition;
 using System;
 using System.Threading.Tasks;
 
-namespace Len.Transfer.AccountBoundedContext.CommandHandlers
+namespace Len.Transfer.Consomers
 {
-    public class AccountTransferCommandHandler : IConsumer<IAccountTransferCommand>
+    public class StartAccountTransferConsmer : IConsumer<IAccountTransferCommand>
     {
         public async Task Consume(ConsumeContext<IAccountTransferCommand> context)
         {
@@ -47,11 +47,11 @@ namespace Len.Transfer.AccountBoundedContext.CommandHandlers
         }
     }
 
-    public class AccountTransferCommandHandlerDefinition : ConsumerDefinition<AccountTransferCommandHandler>
+    public class StartAccountTransferConsmerDefinition : ConsumerDefinition<StartAccountTransferConsmer>
     {
-        public AccountTransferCommandHandlerDefinition()
+        public StartAccountTransferConsmerDefinition()
         {
-            EndpointName = "start-account-transfer-handler";
+            EndpointName = "start-account-transfer";
         }
     }
 }

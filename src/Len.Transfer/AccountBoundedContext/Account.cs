@@ -48,7 +48,6 @@ namespace Len.Transfer.AccountBoundedContext
 
         public override string ToString()
         {
-
             return Newtonsoft.Json.JsonConvert.SerializeObject(State);
         }
 
