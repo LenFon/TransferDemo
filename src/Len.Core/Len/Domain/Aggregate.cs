@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Len.Domain
 {
-    public abstract class Aggregate : IAggregate
+    public abstract class Aggregate : IAggregate, IEquatable<IAggregate>
     {
         private readonly List<IEvent> _changes = new List<IEvent>();
 
@@ -36,6 +36,24 @@ namespace Len.Domain
         protected abstract void InitializeFromHistory(IEnumerable<IEvent> eventHistories);
 
         public IEnumerable<IEvent> NoEvents => new IEvent[0];
+
+        public bool Equals(IAggregate other) => Id == other.Id;
+        public override int GetHashCode() => Id.GetHashCode();
+
+        public override bool Equals(object obj)
+        {
+            if (obj is IAggregate other)
+            {
+                return Equals(other);
+            }
+
+            return false;
+        }
+
+
+        public static bool operator ==(Aggregate left, IAggregate right) => Equals(left, right);
+
+        public static bool operator !=(Aggregate left, IAggregate right) => !Equals(left, right);
     }
 
     public class Aggregate<TAggregateState> : Aggregate
