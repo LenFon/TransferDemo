@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Volo.Abp.DependencyInjection;
 
 namespace Len.Domain.Persistence.Repositories
 {
-    public interface IRepository
+    public interface IRepository : ITransientDependency
     {
         Task SaveAsync<TAggregate>(TAggregate aggregate)
             where TAggregate : IAggregate, new();

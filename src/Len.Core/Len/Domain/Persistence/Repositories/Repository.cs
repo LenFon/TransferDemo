@@ -14,7 +14,11 @@ namespace Len.Domain.Persistence.Repositories
         {
             _factory = factory ?? throw new ArgumentNullException(nameof(factory));
             _eventStore = eventStore ?? throw new ArgumentNullException(nameof(eventStore));
+
+            MementoStore = NullMementoStore.Instance;
         }
+
+        public IMementoStore MementoStore { get; set; }
 
         public async Task SaveAsync<TAggregate>(TAggregate aggregate) where TAggregate : IAggregate, new()
         {
@@ -28,7 +32,8 @@ namespace Len.Domain.Persistence.Repositories
         public async Task<TAggregate> GetByIdAsync<TAggregate>(Guid id, int version = int.MaxValue)
              where TAggregate : IAggregate, new()
         {
-            var aggregate = _factory.Build<TAggregate>();
+            var memento = await MementoStore.GetMementoAsync(id, version);
+            var aggregate = _factory.Build<TAggregate>(memento);
 
             await ApplyEventsAsync(id, version, aggregate);
 
@@ -37,8 +42,9 @@ namespace Len.Domain.Persistence.Repositories
 
         public async Task<IAggregate> GetByIdAsync(Type aggregateType, Guid id, int version = int.MaxValue)
         {
-            var aggregate = _factory.Build(aggregateType);
-            
+            var memento = await MementoStore.GetMementoAsync(id, version);
+            var aggregate = _factory.Build(aggregateType, memento);
+
             await ApplyEventsAsync(id, version, aggregate);
 
             return aggregate;
@@ -46,9 +52,12 @@ namespace Len.Domain.Persistence.Repositories
 
         private async Task ApplyEventsAsync(Guid id, int version, IAggregate aggregate)
         {
-            var events = await _eventStore.GetEventsAsync(id, aggregate.LastEventVersion + 1, version);
+            if (aggregate.LastEventVersion < version)
+            {
+                var events = await _eventStore.GetEventsAsync(id, aggregate.LastEventVersion + 1, version);
 
-            aggregate.Initialize(events);
+                aggregate.Initialize(events);
+            }
         }
     }
 

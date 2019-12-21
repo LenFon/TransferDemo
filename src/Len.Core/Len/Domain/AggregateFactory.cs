@@ -3,7 +3,7 @@ using System;
 
 namespace Len.Domain
 {
-    public class AggregateFactory : IAggregateFactory
+    public class AggregateFactory : IAggregateFactory, Volo.Abp.DependencyInjection.ISingletonDependency
     {
         public TAggregate Build<TAggregate>(IMemento memento = null) where TAggregate : IAggregate, new()
         {

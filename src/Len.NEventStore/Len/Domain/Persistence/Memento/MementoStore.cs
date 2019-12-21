@@ -1,13 +1,11 @@
 ﻿using NEventStore;
 using NEventStore.Persistence;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Len.Domain.Persistence.Memento
 {
-    public class MementoStore : IMementoStore
+    public class MementoStore : IMementoStore, Volo.Abp.DependencyInjection.ITransientDependency
     {
         private readonly IPersistStreams _persistStreams;
 

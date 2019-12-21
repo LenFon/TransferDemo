@@ -21,16 +21,14 @@ using Serilog;
 using Serilog.Events;
 using System;
 using System.Threading.Tasks;
+using Volo.Abp;
 
 namespace Len.Transfer
 {
     class Program
     {
-        private static readonly byte[] EncryptionKey = { 0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf };
-
         static async Task Main(string[] args)
         {
-            var baseUri = new Uri("loopback://localhost/len/");
             Log.Logger = new LoggerConfiguration()
                  .MinimumLevel.Debug()//最小的输出单位是Debug级别的
                  .MinimumLevel.Override("Microsoft", LogEventLevel.Information)//将Microsoft前缀的日志的最小输出级别改成Information
@@ -38,94 +36,15 @@ namespace Len.Transfer
                  .WriteTo.Console()
                  .CreateLogger();
 
-            var services = new ServiceCollection();
-
-            services.AddLogging(builder => builder.AddSerilog(dispose: true));
-
-            var connStr = @"Server=(LocalDb)\MSSQLLocalDB;Database=Transfer-EventDb;User ID=sa;Password=1;";
-            services.AddSingleton<IStoreEvents>(Wireup
-                .Init()
-                .LogToConsoleWindow()
-                .UseOptimisticPipelineHook()
-                //.UsingInMemoryPersistence()
-                .UsingSqlPersistence(System.Data.SqlClient.SqlClientFactory.Instance, connStr)
-                .WithDialect(new MsSqlDialect())
-                .InitializeStorageEngine()
-                .UsingJsonSerialization()
-                .Compress()
-                .EncryptWith(EncryptionKey)
-                .UsingEventUpconversion()
-                .Build());
-            services.AddSingleton<IPersistStreams>(p => p.GetService<IStoreEvents>().Advanced);
-
-            services.AddSingleton<IAggregateFactory, AggregateFactory>();
-            services.AddSingleton<IConflictDetector, ConflictDetector>();
-            services.AddTransient<IEventStore, EventStore>();
-            services.AddTransient<IMementoStore, MementoStore>();
-            services.AddTransient<IRepository, Repository>();
-            services.AddTransient(typeof(IRepository<>), typeof(Repository<>));
-            services.AddTransient<ISagaRepository<AccountTransferStateInstance>, InMemorySagaRepository<AccountTransferStateInstance>>();
-            services.AddSingleton<ISendCommandsAndWaitForAResponse, CommandSender>();
-
-            services.Scan(scan =>
+            using var application = AbpApplicationFactory.Create<TransferConsoleAppModule>(options =>
             {
-                scan.FromAssemblyOf<CreateAccountCommandHandler>()
-                    .AddClasses(c => c.Where(w => w.Name.EndsWith("CommandHandler")))
-                    .AddClasses(c => c.WithAttribute<CommandHandlerAttribute>())
-                    .AsImplementedInterfaces()
-                    .WithTransientLifetime();
+                options.Configuration.CommandLineArgs = args;
+                options.UseAutofac();
             });
 
-            services.AddSingleton<PollingClient2>(p =>
-            {
-                var bus = p.GetService<IBus>();
-                var store = p.GetService<IStoreEvents>();
+            application.Initialize();
 
-                return new PollingClient2(store.Advanced, commit =>
-                {
-                    // Project / Dispatch the commit etc
-                    Console.WriteLine("BucketId={0};StreamId={1};CommitSequence={2}", commit.BucketId, commit.StreamId, commit.CommitSequence);
-                    // Track the most recent checkpoint
-                    //checkpointToken = commit.CheckpointToken;
-                    foreach (var item in commit.Events)
-                    {
-                        bus.Publish(item.Body).ConfigureAwait(false).GetAwaiter().GetResult();
-                    }
-
-                    if (commit.StreamRevision % 2 == 0)
-                    {
-                        bus.Publish<ICreateSnapshot>(new
-                        {
-                            Id = Guid.NewGuid(),
-                            AggregateId = Guid.Parse(commit.StreamId),
-                            Version = commit.StreamRevision,
-                        }).ConfigureAwait(false).GetAwaiter().GetResult();
-                    }
-
-                    return PollingClient2.HandlingResult.MoveToNext;
-                },
-                waitInterval: 3000);
-            });
-
-            services.AddMassTransit(x =>
-            {
-                x.AddConsumersFromNamespaceContaining<CreateAccountCommandConsumer>();
-                x.AddSagaStateMachinesFromNamespaceContaining(typeof(AccountTransferStateMachine));
-
-                x.AddBus(provider => Bus.Factory.CreateUsingInMemory(baseUri, cfg =>
-                {
-                    //cfg.Host(new Uri("rabbitmq://192.168.199.16:5673"), host =>
-                    //{
-                    //    host.Username("guest");
-                    //    host.Password("guest");
-                    //});
-
-                    cfg.ConfigureEndpoints(provider);
-                }));
-            });
-
-
-            using var scope = services.BuildServiceProvider().CreateScope();
+            using var scope = application.ServiceProvider.CreateScope();
             var bus = scope.ServiceProvider.GetService<IBusControl>();
             await bus.StartAsync();
 

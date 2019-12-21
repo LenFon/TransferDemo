@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Len.Events.Persistence
 {
-    public class EventStore : IEventStore
+    public class EventStore : IEventStore, Volo.Abp.DependencyInjection.ITransientDependency
     {
         private readonly IStoreEvents _storeEvents;
         private readonly IConflictDetector _conflictDetector;

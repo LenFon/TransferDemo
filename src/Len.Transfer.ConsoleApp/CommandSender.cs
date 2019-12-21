@@ -1,14 +1,13 @@
 ﻿using Len.Commands;
 using MassTransit;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Volo.Abp.DependencyInjection;
 
 namespace Len.Transfer
 {
-    public class CommandSender : ISendCommandsAndWaitForAResponse
+    public class CommandSender : ISendCommandsAndWaitForAResponse, ISingletonDependency
     {
         private readonly IClientFactory _clientFactory;
         private readonly TimeSpan _timeOut = TimeSpan.FromDays(5);

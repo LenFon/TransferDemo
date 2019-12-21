@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Len.Domain.Persistence
 {
-    public class ConflictDetector : IConflictDetector
+    public class ConflictDetector : IConflictDetector, Volo.Abp.DependencyInjection.ISingletonDependency
     {
         private delegate bool ConflictPredicate(object uncommitted, object committed);
 
