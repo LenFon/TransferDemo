@@ -31,7 +31,7 @@ namespace Len.Transfer
 
             context.Services.AddLogging(builder => builder.AddSerilog(dispose: true));
 
-            context.Services.AddSingleton<IStoreEvents>(Wireup
+            context.Services.AddSingleton<IStoreEvents>(p => Wireup
                 .Init()
                 .LogToConsoleWindow()
                 .UseOptimisticPipelineHook()
@@ -44,7 +44,7 @@ namespace Len.Transfer
                 .EncryptWith(EncryptionKey)
                 .UsingEventUpconversion()
                 .Build());
-            
+
             context.Services.AddTransient<ISagaRepository<AccountTransferStateInstance>, InMemorySagaRepository<AccountTransferStateInstance>>();
             context.Services.AddSingleton<ISendCommandsAndWaitForAResponse, CommandSender>();
 
