@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Len.NEventStore\Len.NEventStore.csproj" />
+    <ProjectReference Include="..\Len.Transfer.Saga\Len.Transfer.Saga.csproj" />
     <ProjectReference Include="..\Len.Transfer\Len.Transfer.csproj" />
   </ItemGroup>
 

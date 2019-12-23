@@ -23,6 +23,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UI", "UI", "{5438189A-5DE2-
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Len.Transfer.SnapshotService", "src\Len.Transfer.SnapshotService\Len.Transfer.SnapshotService.csproj", "{9F740AB8-CA60-414E-A470-01E242EF668E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Len.Transfer.Saga", "src\Len.Transfer.Saga\Len.Transfer.Saga.csproj", "{933CCD7E-6C4C-47B3-B4E5-8A9CEF494EB6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -53,6 +55,10 @@ Global
 		{9F740AB8-CA60-414E-A470-01E242EF668E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9F740AB8-CA60-414E-A470-01E242EF668E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9F740AB8-CA60-414E-A470-01E242EF668E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{933CCD7E-6C4C-47B3-B4E5-8A9CEF494EB6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{933CCD7E-6C4C-47B3-B4E5-8A9CEF494EB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{933CCD7E-6C4C-47B3-B4E5-8A9CEF494EB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{933CCD7E-6C4C-47B3-B4E5-8A9CEF494EB6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -63,6 +69,7 @@ Global
 		{DF2C50E7-A24E-4728-876B-3E202A7C974B} = {B34667EE-A586-4B09-B0CA-713E594FFE51}
 		{5F94E45A-4EF6-42CF-8311-4153DBF6B192} = {721C64EB-01D3-45E4-8E56-9996AEB34613}
 		{9F740AB8-CA60-414E-A470-01E242EF668E} = {72CF37A3-85BC-4CA6-A30C-94828BEDF044}
+		{933CCD7E-6C4C-47B3-B4E5-8A9CEF494EB6} = {B34667EE-A586-4B09-B0CA-713E594FFE51}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C301F91F-F7CB-414C-B296-A78C559FE2CE}

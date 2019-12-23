@@ -1,5 +1,4 @@
-﻿
-using Automatonymous;
+﻿using Automatonymous;
 using GreenPipes;
 using Len.Transfer.AccountBoundedContext.Commands;
 using Len.Transfer.AccountBoundedContext.Events;
@@ -8,7 +7,7 @@ using MassTransit.Definition;
 using System;
 using System.Threading.Tasks;
 
-namespace Len.Transfer.Saga
+namespace Len.Transfer.AccountBoundedContext.Saga
 {
     /// <summary>
     /// 转账状态机

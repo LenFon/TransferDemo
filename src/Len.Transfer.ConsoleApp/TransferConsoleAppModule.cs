@@ -1,33 +1,26 @@
 ﻿using Len.Commands;
-using Len.Domain.Persistence.Repositories;
-using Len.Transfer.AccountBoundedContext.CommandHandlers;
+using Len.Transfer.AccountBoundedContext.Saga;
 using Len.Transfer.Consomers;
-using Len.Transfer.Saga;
 using MassTransit;
-using MassTransit.Saga;
 using Microsoft.Extensions.DependencyInjection;
 using NEventStore;
-using NEventStore.Persistence;
 using NEventStore.Persistence.Sql.SqlDialects;
 using NEventStore.PollingClient;
 using NEventStore.Serialization.Json;
 using Serilog;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using Volo.Abp;
 using Volo.Abp.Modularity;
 
 namespace Len.Transfer
 {
-    [DependsOn(typeof(TransferModule), typeof(NEventStoreModule))]
+    [DependsOn(typeof(TransferModule), typeof(TransferSagaModule), typeof(NEventStoreModule))]
     public class TransferConsoleAppModule : AbpModule
     {
         private static readonly byte[] EncryptionKey = { 0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf };
 
         public override void ConfigureServices(ServiceConfigurationContext context)
         {
-            var baseUri = new Uri("loopback://localhost/len/");
             var connStr = @"Server=(LocalDb)\MSSQLLocalDB;Database=Transfer-EventDb;User ID=sa;Password=1;";
 
             context.Services.AddLogging(builder => builder.AddSerilog(dispose: true));
@@ -46,7 +39,6 @@ namespace Len.Transfer
                 .UsingEventUpconversion()
                 .Build());
 
-            context.Services.AddTransient<ISagaRepository<AccountTransferStateInstance>, InMemorySagaRepository<AccountTransferStateInstance>>();
             context.Services.AddSingleton<ISendCommandsAndWaitForAResponse, CommandSender>();
 
             context.Services.AddSingleton<PollingClient2>(p =>
@@ -69,6 +61,8 @@ namespace Len.Transfer
                 },
                 waitInterval: 3000);
             });
+
+            var baseUri = new Uri("loopback://localhost/len/");
 
             context.Services.AddMassTransit(x =>
             {
