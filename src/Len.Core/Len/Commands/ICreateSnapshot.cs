@@ -8,6 +8,8 @@ namespace Len.Commands
     {
         Guid AggregateId { get; }
 
+        string AggregateTypeFullName { get; }
+
         int Version { get; }
     }
 }

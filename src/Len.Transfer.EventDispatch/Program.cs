@@ -9,6 +9,7 @@ using NEventStore.Serialization.Json;
 using Serilog;
 using Serilog.Events;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Len.Transfer.EventDispatch
@@ -17,9 +18,47 @@ namespace Len.Transfer.EventDispatch
     {
         static async Task Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            var baseUri = new Uri("loopback://localhost/");
+
+            var bus1 = Bus.Factory.CreateUsingInMemory(new Uri(baseUri, "first" + '/'), cfg =>
+            {
+                cfg.ReceiveEndpoint(c =>
+                {
+                    c.Consumer<RealConsumer>();
+                });
+            });
+
+            var bus2 = Bus.Factory.CreateUsingInMemory(new Uri(baseUri, "second" + '/'), cfg =>
+            {
+            });
+            
+            bus1.Start();
+            bus2.Start();
+            
+            await bus2.Publish(new A());
 
             Console.Read();
         }
+
+        static string GetVirtualHost(Uri address)
+        {
+            return address.AbsolutePath.Split('/').First(x => !string.IsNullOrWhiteSpace(x));
+
+        }
+    }
+
+    class RealConsumer :
+        IConsumer<A>
+    {
+        public Task Consume(ConsumeContext<A> context)
+        {
+            Console.WriteLine("111");
+            return Task.CompletedTask;
+        }
+    }
+
+
+    public class A
+    {
     }
 }

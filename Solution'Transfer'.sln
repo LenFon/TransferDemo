@@ -7,11 +7,21 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Len.Core", "src\Len.Core\Le
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Len.Transfer.ConsoleApp", "src\Len.Transfer.ConsoleApp\Len.Transfer.ConsoleApp.csproj", "{B774D741-F56C-4E44-98B4-36DDE68773D8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Len.Transfer", "src\Len.Transfer\Len.Transfer.csproj", "{DF2C50E7-A24E-4728-876B-3E202A7C974B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Len.Transfer", "src\Len.Transfer\Len.Transfer.csproj", "{DF2C50E7-A24E-4728-876B-3E202A7C974B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Len.Transfer.EventDispatch", "src\Len.Transfer.EventDispatch\Len.Transfer.EventDispatch.csproj", "{7FEC222C-7F8B-4263-836D-FE1913106F01}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Len.Transfer.EventDispatch", "src\Len.Transfer.EventDispatch\Len.Transfer.EventDispatch.csproj", "{7FEC222C-7F8B-4263-836D-FE1913106F01}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Len.NEventStore", "src\Len.NEventStore\Len.NEventStore.csproj", "{5F94E45A-4EF6-42CF-8311-4153DBF6B192}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Len.NEventStore", "src\Len.NEventStore\Len.NEventStore.csproj", "{5F94E45A-4EF6-42CF-8311-4153DBF6B192}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Service", "Service", "{72CF37A3-85BC-4CA6-A30C-94828BEDF044}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{721C64EB-01D3-45E4-8E56-9996AEB34613}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Domain", "Domain", "{B34667EE-A586-4B09-B0CA-713E594FFE51}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UI", "UI", "{5438189A-5DE2-4AE2-8D39-C607906BE959}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Len.Transfer.SnapshotService", "src\Len.Transfer.SnapshotService\Len.Transfer.SnapshotService.csproj", "{9F740AB8-CA60-414E-A470-01E242EF668E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,9 +49,20 @@ Global
 		{5F94E45A-4EF6-42CF-8311-4153DBF6B192}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5F94E45A-4EF6-42CF-8311-4153DBF6B192}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5F94E45A-4EF6-42CF-8311-4153DBF6B192}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9F740AB8-CA60-414E-A470-01E242EF668E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F740AB8-CA60-414E-A470-01E242EF668E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F740AB8-CA60-414E-A470-01E242EF668E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F740AB8-CA60-414E-A470-01E242EF668E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{1F67E16D-746A-4193-8A55-4F0CFC8430FF} = {721C64EB-01D3-45E4-8E56-9996AEB34613}
+		{B774D741-F56C-4E44-98B4-36DDE68773D8} = {5438189A-5DE2-4AE2-8D39-C607906BE959}
+		{DF2C50E7-A24E-4728-876B-3E202A7C974B} = {B34667EE-A586-4B09-B0CA-713E594FFE51}
+		{5F94E45A-4EF6-42CF-8311-4153DBF6B192} = {721C64EB-01D3-45E4-8E56-9996AEB34613}
+		{9F740AB8-CA60-414E-A470-01E242EF668E} = {72CF37A3-85BC-4CA6-A30C-94828BEDF044}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C301F91F-F7CB-414C-B296-A78C559FE2CE}

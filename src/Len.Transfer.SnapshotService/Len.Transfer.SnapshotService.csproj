@@ -2,21 +2,19 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
-    <RootNamespace>Len.Transfer</RootNamespace>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <RootNamespace>Len.Transfer.SnapshotService</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="MassTransit.Extensions.DependencyInjection" Version="6.0.0" />
     <PackageReference Include="MassTransit.RabbitMQ" Version="6.0.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.0" />
     <PackageReference Include="NEventStore" Version="7.0.0" />
     <PackageReference Include="NEventStore.Persistence.Sql" Version="7.2.0" />
     <PackageReference Include="NEventStore.PollingClient" Version="7.0.0" />
     <PackageReference Include="NEventStore.Serialization.Json" Version="7.0.0" />
     <PackageReference Include="Serilog.Extensions.Logging" Version="3.0.1" />
     <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
-    <PackageReference Include="System.Data.SqlClient" Version="4.8.0" />
     <PackageReference Include="Volo.Abp.Autofac" Version="1.1.2" />
   </ItemGroup>
 

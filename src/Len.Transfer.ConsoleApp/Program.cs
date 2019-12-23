@@ -45,9 +45,6 @@ namespace Len.Transfer
             application.Initialize();
 
             using var scope = application.ServiceProvider.CreateScope();
-            var bus = scope.ServiceProvider.GetService<IBusControl>();
-            await bus.StartAsync();
-
             var client = scope.ServiceProvider.GetService<PollingClient2>();
 
             client.StartFrom();

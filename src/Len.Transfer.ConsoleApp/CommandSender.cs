@@ -33,6 +33,10 @@ namespace Len.Transfer
                    string.Format(
                        "The request timed out after {0} seconds.", _timeOut.Seconds), ex);
             }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
     }
 }
