@@ -7,6 +7,7 @@ namespace Len.Domain.Persistence.Repositories
 {
     public class Repository : IRepository
     {
+        public const string AggregateType = "AggregateType";
         private readonly IAggregateFactory _factory;
         private readonly IEventStore _eventStore;
 
@@ -23,8 +24,12 @@ namespace Len.Domain.Persistence.Repositories
         public async Task SaveAsync<TAggregate>(TAggregate aggregate) where TAggregate : IAggregate, new()
         {
             var events = aggregate.GetUncommittedChanges();
+            var headers = new System.Collections.Generic.Dictionary<string, object>
+            {
+                [AggregateType] = aggregate.GetType().FullName
+            };
 
-            await _eventStore.SaveAsync(aggregate.Id, events);
+            await _eventStore.SaveAsync(aggregate.Id, events, headers);
 
             aggregate.MarkChangesAsCommitted();
         }
@@ -52,7 +57,7 @@ namespace Len.Domain.Persistence.Repositories
 
         private async Task ApplyEventsAsync(Guid id, int version, IAggregate aggregate)
         {
-            if (aggregate.LastEventVersion < version)
+            if (aggregate.LastEventVersion <= version)
             {
                 var events = await _eventStore.GetEventsAsync(id, aggregate.LastEventVersion + 1, version);
 

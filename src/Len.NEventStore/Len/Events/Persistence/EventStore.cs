@@ -21,17 +21,34 @@ namespace Len.Events.Persistence
 
         public Task<IEnumerable<IEvent>> GetEventsAsync(Guid aggregateId, int minVersion = int.MinValue, int maxVersion = int.MaxValue)
         {
-            var stream = _storeEvents.OpenStream(Bucket.Default, aggregateId, minVersion, maxVersion);
-            var events = stream.CommittedEvents.Select(x => x.Body as IEvent);
+            try
+            {
+                var stream = _storeEvents.OpenStream(Bucket.Default, aggregateId, minVersion, maxVersion);
+                var events = stream.CommittedEvents.Select(x => x.Body as IEvent);
 
-            return Task.FromResult(events);
+                return Task.FromResult(events);
+            }
+            catch (StreamNotFoundException ex)
+            {
+                return Task.FromResult(Enumerable.Empty<IEvent>());
+            }
+
         }
 
-        public Task SaveAsync(Guid aggregateId, IEnumerable<IEvent> events)
+        public Task SaveAsync(Guid aggregateId, IEnumerable<IEvent> events, IDictionary<string, object> headers = null)
         {
+
             while (true)
             {
                 var stream = _storeEvents.OpenStream(Bucket.Default, aggregateId);
+
+                if (headers != null)
+                {
+                    foreach (var item in headers)
+                    {
+                        stream.UncommittedHeaders.Add(item);
+                    }
+                }
 
                 events
                     .Select(s => new EventMessage { Body = s })

@@ -23,7 +23,7 @@ namespace Len.Events.Persistence
             return Task.FromResult(Enumerable.Empty<IEvent>());
         }
 
-        public Task SaveAsync(Guid aggregateId, IEnumerable<IEvent> events)
+        public Task SaveAsync(Guid aggregateId, IEnumerable<IEvent> events, IDictionary<string, object> headers = null)
         {
             var key = aggregateId.ToString();
 

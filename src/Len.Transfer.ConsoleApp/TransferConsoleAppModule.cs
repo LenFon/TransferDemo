@@ -65,16 +65,6 @@ namespace Len.Transfer
                         bus.Publish(item.Body).ConfigureAwait(false).GetAwaiter().GetResult();
                     }
 
-                    if (commit.StreamRevision % 2 == 0)
-                    {
-                        bus.Publish<ICreateSnapshot>(new
-                        {
-                            Id = Guid.NewGuid(),
-                            AggregateId = Guid.Parse(commit.StreamId),
-                            Version = commit.StreamRevision,
-                        }).ConfigureAwait(false).GetAwaiter().GetResult();
-                    }
-
                     return PollingClient2.HandlingResult.MoveToNext;
                 },
                 waitInterval: 3000);

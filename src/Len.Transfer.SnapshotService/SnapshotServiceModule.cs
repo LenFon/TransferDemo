@@ -53,13 +53,18 @@ namespace Len.Transfer.SnapshotService
                     //checkpointToken = commit.CheckpointToken;
                     if (commit.StreamRevision % 2 == 0)
                     {
-                        bus.Publish<ICreateSnapshot>(new
+                        var aggregateType = commit.Headers[Domain.Persistence.Repositories.Repository.AggregateType]?.ToString();
+
+                        if (!string.IsNullOrEmpty(aggregateType))
                         {
-                            Id = Guid.NewGuid(),
-                            AggregateId = Guid.Parse(commit.StreamId),
-                            AggregateTypeFullName = typeof(Transfer.AccountBoundedContext.Account).FullName,
-                            Version = commit.StreamRevision,
-                        }).ConfigureAwait(false).GetAwaiter().GetResult();
+                            bus.Publish<ICreateSnapshot>(new
+                            {
+                                Id = Guid.NewGuid(),
+                                AggregateId = Guid.Parse(commit.StreamId),
+                                AggregateTypeFullName = aggregateType,
+                                Version = commit.StreamRevision,
+                            }).ConfigureAwait(false).GetAwaiter().GetResult();
+                        }
                     }
 
                     return PollingClient2.HandlingResult.MoveToNext;
