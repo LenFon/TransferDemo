@@ -40,7 +40,7 @@ namespace Len.Transfer.SnapshotService
 
             context.Services.AddMassTransit(x =>
             {
-                x.AddConsumer<CreateSnapshotCommandConsumer>();
+                x.AddConsumersFromNamespaceContaining<CreateSnapshotCommandConsumer>();
 
                 x.AddBus(provider => Bus.Factory.CreateUsingRabbitMq(cfg =>
                 {
