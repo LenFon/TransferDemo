@@ -57,25 +57,38 @@ namespace Len.Transfer
                         bus.Publish(item.Body).ConfigureAwait(false).GetAwaiter().GetResult();
                     }
 
+                    if (commit.StreamRevision % 2 == 0)
+                    {
+                        var aggregateType = commit.Headers[Domain.Persistence.Repositories.Repository.AggregateType]?.ToString();
+
+                        if (!string.IsNullOrEmpty(aggregateType))
+                        {
+                            bus.Publish<ICreateSnapshot>(new
+                            {
+                                Id = Guid.NewGuid(),
+                                AggregateId = Guid.Parse(commit.StreamId),
+                                AggregateTypeFullName = aggregateType,
+                                Version = commit.StreamRevision,
+                            }).ConfigureAwait(false).GetAwaiter().GetResult();
+                        }
+                    }
+
                     return PollingClient2.HandlingResult.MoveToNext;
                 },
                 waitInterval: 3000);
             });
 
-            var baseUri = new Uri("loopback://localhost/len/");
-
             context.Services.AddMassTransit(x =>
             {
                 x.AddConsumersFromNamespaceContaining<CreateAccountCommandConsumer>();
                 x.AddSagaStateMachinesFromNamespaceContaining(typeof(AccountTransferStateMachine));
-
-                x.AddBus(provider => Bus.Factory.CreateUsingInMemory(baseUri, cfg =>
+                x.AddBus(provider => Bus.Factory.CreateUsingRabbitMq(cfg =>
                 {
-                    //cfg.Host(new Uri("rabbitmq://192.168.199.16:5673"), host =>
-                    //{
-                    //    host.Username("guest");
-                    //    host.Password("guest");
-                    //});
+                    cfg.Host(new Uri("rabbitmq://192.168.199.16:5673"), host =>
+                    {
+                        host.Username("guest");
+                        host.Password("guest");
+                    });
 
                     cfg.ConfigureEndpoints(provider);
                 }));
@@ -87,6 +100,10 @@ namespace Len.Transfer
             var bus = context.ServiceProvider.GetService<IBusControl>();
 
             bus.Start();
+
+            var client = context.ServiceProvider.GetService<PollingClient2>();
+
+            client.StartFrom();
         }
 
         public override void OnApplicationShutdown(ApplicationShutdownContext context)
@@ -94,6 +111,10 @@ namespace Len.Transfer
             var bus = context.ServiceProvider.GetService<IBusControl>();
 
             bus.Stop();
+
+            var client = context.ServiceProvider.GetService<PollingClient2>();
+
+            client.Stop();
         }
     }
 }

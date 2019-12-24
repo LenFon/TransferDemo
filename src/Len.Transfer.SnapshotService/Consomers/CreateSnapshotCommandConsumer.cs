@@ -24,7 +24,7 @@ namespace Len.Transfer.SnapshotService.Consomers
     {
         public CreateSnapshotCommandConsumerDefinition()
         {
-            EndpointName = "create-snapshot";
+            EndpointName = "create-snapshotA";
         }
     }
 }

@@ -22,8 +22,6 @@ namespace Len.Transfer.SnapshotService
         public override void ConfigureServices(ServiceConfigurationContext context)
         {
             var connStr = @"Server=(LocalDb)\MSSQLLocalDB;Database=Transfer-EventDb;User ID=sa;Password=1;";
-            var baseUri = new Uri("loopback://localhost/len/");
-
             context.Services.AddLogging(builder => builder.AddSerilog(dispose: true));
 
             context.Services.AddSingleton<IStoreEvents>(p => Wireup
@@ -40,50 +38,17 @@ namespace Len.Transfer.SnapshotService
                 .UsingEventUpconversion()
                 .Build());
 
-            context.Services.AddSingleton<PollingClient2>(p =>
-            {
-                var bus = p.GetService<IBus>();
-                var store = p.GetService<IStoreEvents>();
-
-                return new PollingClient2(store.Advanced, commit =>
-                {
-                    // Project / Dispatch the commit etc
-                    Console.WriteLine("BucketId={0};StreamId={1};CommitSequence={2}", commit.BucketId, commit.StreamId, commit.CommitSequence);
-                    // Track the most recent checkpoint
-                    //checkpointToken = commit.CheckpointToken;
-                    if (commit.StreamRevision % 2 == 0)
-                    {
-                        var aggregateType = commit.Headers[Domain.Persistence.Repositories.Repository.AggregateType]?.ToString();
-
-                        if (!string.IsNullOrEmpty(aggregateType))
-                        {
-                            bus.Publish<ICreateSnapshot>(new
-                            {
-                                Id = Guid.NewGuid(),
-                                AggregateId = Guid.Parse(commit.StreamId),
-                                AggregateTypeFullName = aggregateType,
-                                Version = commit.StreamRevision,
-                            }).ConfigureAwait(false).GetAwaiter().GetResult();
-                        }
-                    }
-
-                    return PollingClient2.HandlingResult.MoveToNext;
-                },
-                waitInterval: 3000);
-            });
-
             context.Services.AddMassTransit(x =>
             {
-                x.AddConsumersFromNamespaceContaining<CreateSnapshotCommandConsumer>();
-                //x.AddSagaStateMachinesFromNamespaceContaining(typeof(AccountTransferStateMachine));
+                x.AddConsumer<CreateSnapshotCommandConsumer>();
 
-                x.AddBus(provider => Bus.Factory.CreateUsingInMemory(baseUri, cfg =>
+                x.AddBus(provider => Bus.Factory.CreateUsingRabbitMq(cfg =>
                 {
-                    //cfg.Host(new Uri("rabbitmq://192.168.199.16:5673"), host =>
-                    //{
-                    //    host.Username("guest");
-                    //    host.Password("guest");
-                    //});
+                    cfg.Host(new Uri("rabbitmq://192.168.199.16:5673"), host =>
+                    {
+                        host.Username("guest");
+                        host.Password("guest");
+                    });
 
                     cfg.ConfigureEndpoints(provider);
                 }));
@@ -95,10 +60,6 @@ namespace Len.Transfer.SnapshotService
             var bus = context.ServiceProvider.GetService<IBusControl>();
 
             bus.Start();
-
-            var client = context.ServiceProvider.GetService<PollingClient2>();
-
-            client.StartFrom();
         }
 
         public override void OnApplicationShutdown(ApplicationShutdownContext context)
@@ -106,10 +67,6 @@ namespace Len.Transfer.SnapshotService
             var bus = context.ServiceProvider.GetService<IBusControl>();
 
             bus.Stop();
-
-            var client = context.ServiceProvider.GetService<PollingClient2>();
-
-            client.Dispose();
         }
     }
 }
